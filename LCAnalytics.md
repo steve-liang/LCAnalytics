@@ -348,6 +348,8 @@ ld + facet_grid(grade ~ .)
 
 ![](LCAnalytics_files/figure-markdown_github/unnamed-chunk-17-1.png)
 
-Even the worst grade (G) loan would not comprise more than 50% of the total debt. So, Lending Club is surely **NOT** the major lenders that most people take loan from. If someone took more debt on LC than anywhere else, he/she is likely have financial issue.
+Even the majority of the worst grade (G) loan would not comprise more than 50% of the total debt. So, Lending Club is surely **NOT** the major lenders that most people take loan from. If someone took more debt on LC than anywhere else, he/she is likely have financial issue.
 
 ### Let's move on to the FICO attributes
+
+to be continued...
