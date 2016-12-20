@@ -1,5 +1,5 @@
 ---
-title: "Getting familiar with Lending Club Data"
+title: "Approaching Lending Club Data with R"
 output: github_document
 ---
 
@@ -171,7 +171,7 @@ mydata <- mutate(mydata, monthly_inc = annual_inc/12, lc_dti = installment/month
 
 # lc_dti density by grade
 d <- ggplot(data = mydata, aes(lc_dti)) + xlim(0,0.5)
-d <- d + geom_density(aes(colour = grade))
+d <- d + geom_density(aes(fill = grade))
 d + facet_grid(grade ~ .)
 ```
 The lending club obligation to monthly income displays interesting results. For high-grade loan, the majority of the borrowers will not commit more than 10% of the income on Lending club loan while low-grade borrowers do tend to exceed that threshold. My rule of thumb is that, if you are able to find the monthly repayment < 10% of the borrower's income, this would tend to be a good loan. 
@@ -180,7 +180,7 @@ The lending club obligation to monthly income displays interesting results. For 
 In fact, I have just constructed a Lending Club specific DTI ratio above using LC's monthly payment divided by monthly income, in which we've found it useful in distinguishing grades. The DTI in the dataset is a more generally heard one that excludes mortgage but include all other debts such as credit card, car loan etc. So let's see what those reported DTI is telling. 
 ```{r warning=F}
 d <- ggplot(data = mydata, aes(dti/100)) + xlim(0,1)
-d <- d + geom_density(aes(colour = grade))
+d <- d + geom_density(aes(fill = grade))
 d + facet_grid(grade ~ .)
 ```
 
@@ -191,7 +191,7 @@ dti displays similar feature as lc_dti with high grade loan skew to the right an
 ```{r warning=F}
 mydata <- mutate(mydata, lcd_to_tot_debt = lc_dti / (dti/100))
 ld <- ggplot(data = mydata, aes(lcd_to_tot_debt)) + xlim(0,1)
-ld <- ld + geom_density(aes(colour = grade))
+ld <- ld + geom_density(aes(fill = grade))
 ld + facet_grid(grade ~ .)
 ```
 
@@ -199,7 +199,69 @@ Even the majority of the worst grade (G) loan would not comprise more than 50% o
 
 ### Let's move on to the FICO attributes
 
+```{r warning=F}
+ggplot(data = mydata, aes(earliest_cr_line)) + 
+  geom_density(aes(fill = grade)) + 
+  facet_grid(grade ~.) + 
+  xlim(0,40) + 
+  labs(title = 'Earliest credit line distribution by grade') 
+```
+
+According to the distribution plots, you can generally tell that when credit length is < 12-15 years, there is not much distinctions between grades. The dispersion came from extremely long credit history. A better plot would be to put all distributions under one pane overlaying each other. That is,
+
+```{r warning=F}
+ggplot(data = mydata, aes(earliest_cr_line)) + 
+  geom_density(aes(fill = grade)) + 
+  xlim(0,40) + 
+  labs(title = 'Earliest credit line distribution by grade') 
+```
+
+When credit history is < 12 years, grades are indifferentiable. Until starting from 15 years, you can see that longer credit history corresponds to better grade. So, among all the loan data, what percentage of the borrowers having longer than 15 years of history?
+
+```{r}
+sum(mydata$earliest_cr_line > 15) / nrow(mydata)
+```
+Slightly more than Half. If we only considering the half samples whose credit history is over 15 years, we lose a big chunk of samples, which may still contain good quality borrowers whose credit history are short because they are young. Although longer credit history indicates higher quality but the edge isn't as big as the previous plot shows. I personally don't think the length of credit history is a good determining factor for grading. Let's move on to the other three attributes.
+
+```{r warning=F}
+ggplot(data = mydata, aes(revol_util)) + 
+  geom_density(aes(fill = grade)) + 
+  labs(title = 'Revolving Utilization distribution by grade') 
+
+ggplot(data = mydata, aes(inq_last_12m)) + 
+  geom_density(aes(colour = grade, fill = grade)) + 
+  labs(title = 'Last 12m Inquiry by grade') + xlim(0,30) +
+  facet_wrap( ~ grade)
+
+ggplot(data = mydata, aes(total_bal_ex_mort)) + 
+  geom_density(aes(fill = grade)) + 
+  labs(title = 'total balance excl. mortgage by grade') + 
+  xlim(0,100000)
+
+```
+
+These three plots explains the other three FICO attributes.
+
+* The revolving utilization among different grade displays a centralization at 0.5 but with one exception - Grade A loans that has significantly below 0.5, somewhere at 0.25. Again this isn't too good a indicative plot that anticipated to display smoother transition between grades. The only solid information is the low revovling utilization in Grade A holders. 
+
+* Last 12m credit inquiry is also indifferentiable. The number of inquiry between different grades generally cluster below 20. The only difference lies in the tails. Again this is minor. 
+
+* total balance excl mortgage. The difference above 25k is indifferentiable again. The less amount owed, the higher grade the loan is. That is reasonable but again this isn't a very strong differentiator. 
+
+Overall, none of the FICO attributes provides a useful and strong indication of the loan quality. Although there are a few observation that could be helpful in indentify extremely good quality borrowers. However, for the majority of loans, these 4 attributes ain't very differentiable. 
+
+Since we can't visualize it, can we try the machine learning way?
+
+## Machine Learning
+
 to be continued...
+
+
+
+
+
+
+
 ```{r include=F}
 file.rename(from="LCAnalytics.md", to="README.md")
 ```
