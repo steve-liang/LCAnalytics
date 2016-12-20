@@ -200,3 +200,6 @@ Even the majority of the worst grade (G) loan would not comprise more than 50% o
 ### Let's move on to the FICO attributes
 
 to be continued...
+```{r include=F}
+file.rename(from="LCAnalytics.md", to="README.md")
+```
