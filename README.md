@@ -1,4 +1,4 @@
-Getting familiar with Lending Club Data
+Approaching Lending Club Data with R
 ================
 
 Introduction
@@ -419,7 +419,7 @@ These three plots explains the other three FICO attributes.
 
 Overall, none of the FICO attributes provides a useful and strong indication of the loan quality. Although there are a few observation that could be helpful in indentify extremely good quality borrowers. However, for the majority of loans, these 4 attributes ain't very differentiable.
 
-If we can't visualize it, can we try the machine learning way?
+Since we can't visualize it, can we try the machine learning way?
 
 Machine Learning
 ----------------
