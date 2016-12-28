@@ -223,10 +223,10 @@ Data look good for analysis now. let's start with **Annual Income**.
 ### What is the range of salary? Do high income borrowers tend to get funded more?
 
 ``` r
-p <- ggplot(mydata, aes(annual_inc, funded_amnt))
-p <- p + geom_point(aes(colour = grade)) 
-p <- p + labs(title = 'annual inc vs. funded amnt')
-p + geom_smooth()
+ggplot(mydata, aes(annual_inc, funded_amnt)) + 
+  geom_point(aes(colour = grade)) +
+  labs(title = 'annual inc vs. funded amnt') +
+  geom_smooth()
 ```
 
 ![](LCAnalytics_files/figure-markdown_github/unnamed-chunk-8-1.png)
@@ -293,10 +293,11 @@ mydata <- filter(mydata, annual_inc < 500000)
 Replot the annual income vs. funded amount chart.
 
 ``` r
-p <- ggplot(mydata, aes(annual_inc, funded_amnt))
-p <- p + geom_point(aes(colour = grade)) 
-p <- p + labs(title = 'annual inc vs. funded amnt')
-p + geom_smooth()
+p <- ggplot(mydata, aes(annual_inc, funded_amnt)) +
+  geom_point(aes(colour = grade)) +
+  labs(title = 'annual inc vs. funded amnt') +
+  geom_smooth()
+p
 ```
 
 ![](LCAnalytics_files/figure-markdown_github/unnamed-chunk-13-1.png)
@@ -316,9 +317,9 @@ The steepness of the regression line confirms that the more money borrowed relat
 mydata <- mutate(mydata, monthly_inc = annual_inc/12, lc_dti = installment/monthly_inc)
 
 # lc_dti density by grade
-d <- ggplot(data = mydata, aes(lc_dti)) + xlim(0,0.5)
-d <- d + geom_density(aes(fill = grade))
-d + facet_grid(grade ~ .)
+ggplot(data = mydata, aes(lc_dti)) + xlim(0,0.5) +
+  geom_density(aes(fill = grade)) +
+  facet_grid(grade ~ .)
 ```
 
 ![](LCAnalytics_files/figure-markdown_github/unnamed-chunk-15-1.png) The lending club obligation to monthly income displays interesting results. For high-grade loan, the majority of the borrowers will not commit more than 10% of the income on Lending club loan while low-grade borrowers do tend to exceed that threshold. My rule of thumb is that, if you are able to find the monthly repayment &lt; 10% of the borrower's income, this would tend to be a good loan.
@@ -341,9 +342,9 @@ dti displays similar feature as lc\_dti with high grade loan skew to the right a
 
 ``` r
 mydata <- mutate(mydata, lcd_to_tot_debt = lc_dti / (dti/100))
-ld <- ggplot(data = mydata, aes(lcd_to_tot_debt)) + xlim(0,1)
-ld <- ld + geom_density(aes(fill = grade))
-ld + facet_grid(grade ~ .)
+ggplot(data = mydata, aes(lcd_to_tot_debt)) + xlim(0,1) +
+  geom_density(aes(fill = grade)) +
+  facet_grid(grade ~ .)
 ```
 
 ![](LCAnalytics_files/figure-markdown_github/unnamed-chunk-17-1.png)
