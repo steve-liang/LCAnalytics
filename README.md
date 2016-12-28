@@ -134,9 +134,9 @@ DTI Ratio
 
 -   *dti*
 
-However I am not able to find FICO score field anymore. Reason 'seems' to be that LC removed this field somewhere along the road before they went public (see reference [here](http://www.lendacademy.com/lending-club-removes-data-fields/)). If I take a guess, FICO has been proven highly correlated to LC's algorithm, as a result of that, to reduce transparency LC decided to cut it out. Instead, LC releases the FICO attributes such as ![new attributes](/home/steve/Pictures/NewAttributes.png)
+However I am not able to find FICO score field anymore. Reason 'seems' to be that LC removed this field somewhere along the road before they went public (see reference [here](http://www.lendacademy.com/lending-club-removes-data-fields/)). If I take a guess, FICO has been proven highly correlated to LC's algorithm, as a result of that, to reduce transparency LC decided to cut it out. Instead, LC releases the FICO attributes such as ![new attributes](/home/steve/Documents/Git/LendingClub/pic/NewAttributes.png)
 
-which means, unfortunately for me, I need more work. To mimic the FICO score, we can use this ![FICOreference](/home/steve/Pictures/FICOAttributes.png)
+which means, unfortunately for me, I need more work. To mimic the FICO score, we can use this ![FICO reference](/home/steve/Documents/Git/LendingClub/pic/FICOAttributes.png)
 
 as a reference, and include relevant fields into the final data frame.
 
@@ -229,7 +229,7 @@ p <- p + labs(title = 'annual inc vs. funded amnt')
 p + geom_smooth()
 ```
 
-![](LCAnalytics_files/figure-markdown_github/unnamed-chunk-8-1.png)
+![](/home/steve/Documents/Git/LendingClub/README_files/figure-markdown_github/unnamed-chunk-8-1.png)
 
 It appears that there are some extremely high income borrowers still borrowing money! I am talking about super duper high income. This one guy has an annual income of
 
@@ -299,7 +299,7 @@ p <- p + labs(title = 'annual inc vs. funded amnt')
 p + geom_smooth()
 ```
 
-![](LCAnalytics_files/figure-markdown_github/unnamed-chunk-13-1.png)
+![](/home/steve/Documents/Git/LendingClub/README_files/figure-markdown_github/unnamed-chunk-13-1.png)
 
 Much better! We know that LC cap the funding limit to $40k so we see no high funded amount greater than that. Overall we see a pretty linear relationship for annual income &lt; $100k. Beyond that, we see the regression line going flat due to the hard cap of $40k. If we drill in to &lt; $100k annual income borrowers, we will see a clearer linear relationship.
 
@@ -307,7 +307,7 @@ Much better! We know that LC cap the funding limit to $40k so we see no high fun
 p + xlim(0,100000) + facet_grid(. ~ grade) + geom_smooth()
 ```
 
-![](LCAnalytics_files/figure-markdown_github/unnamed-chunk-14-1.png)
+![](/home/steve/Documents/Git/LendingClub/README_files/figure-markdown_github/unnamed-chunk-14-1.png)
 
 The steepness of the regression line confirms that the more money borrowed relative to income, the higher risk (lower grade) the loan is. At this point, there is no doubt that annual income is one major factor to determine the grade of a loan. A better way to look at the slope is to use (installment / monthly income) ratio.
 
@@ -321,7 +321,7 @@ d <- d + geom_density(aes(fill = grade))
 d + facet_grid(grade ~ .)
 ```
 
-![](LCAnalytics_files/figure-markdown_github/unnamed-chunk-15-1.png) The lending club obligation to monthly income displays interesting results. For high-grade loan, the majority of the borrowers will not commit more than 10% of the income on Lending club loan while low-grade borrowers do tend to exceed that threshold. My rule of thumb is that, if you are able to find the monthly repayment &lt; 10% of the borrower's income, this would tend to be a good loan.
+![](/home/steve/Documents/Git/LendingClub/README_files/figure-markdown_github/unnamed-chunk-15-1.png) The lending club obligation to monthly income displays interesting results. For high-grade loan, the majority of the borrowers will not commit more than 10% of the income on Lending club loan while low-grade borrowers do tend to exceed that threshold. My rule of thumb is that, if you are able to find the monthly repayment &lt; 10% of the borrower's income, this would tend to be a good loan.
 
 ### Debt-to-Income Ratio (DTI)
 
@@ -333,7 +333,7 @@ d <- d + geom_density(aes(fill = grade))
 d + facet_grid(grade ~ .)
 ```
 
-![](LCAnalytics_files/figure-markdown_github/unnamed-chunk-16-1.png)
+![](/home/steve/Documents/Git/LendingClub/README_files/figure-markdown_github/unnamed-chunk-16-1.png)
 
 dti displays similar feature as lc\_dti with high grade loan skew to the right and low grade to the left
 
@@ -346,7 +346,7 @@ ld <- ld + geom_density(aes(fill = grade))
 ld + facet_grid(grade ~ .)
 ```
 
-![](LCAnalytics_files/figure-markdown_github/unnamed-chunk-17-1.png)
+![](/home/steve/Documents/Git/LendingClub/README_files/figure-markdown_github/unnamed-chunk-17-1.png)
 
 Even the majority of the worst grade (G) loan would not comprise more than 50% of the total debt. So, Lending Club is surely **NOT** the major lenders that most people take loan from. If someone took more debt on LC than anywhere else, he/she is likely have financial issue.
 
@@ -360,7 +360,7 @@ ggplot(data = mydata, aes(earliest_cr_line)) +
   labs(title = 'Earliest credit line distribution by grade') 
 ```
 
-![](LCAnalytics_files/figure-markdown_github/unnamed-chunk-18-1.png)
+![](/home/steve/Documents/Git/LendingClub/README_files/figure-markdown_github/unnamed-chunk-18-1.png)
 
 According to the distribution plots, you can generally tell that when credit length is &lt; 12-15 years, there is not much distinctions between grades. The dispersion came from extremely long credit history. A better plot would be to put all distributions under one pane overlaying each other. That is,
 
@@ -371,7 +371,7 @@ ggplot(data = mydata, aes(earliest_cr_line)) +
   labs(title = 'Earliest credit line distribution by grade') 
 ```
 
-![](LCAnalytics_files/figure-markdown_github/unnamed-chunk-19-1.png)
+![](/home/steve/Documents/Git/LendingClub/README_files/figure-markdown_github/unnamed-chunk-19-1.png)
 
 When credit history is &lt; 12 years, grades are indifferentiable. Until starting from 15 years, you can see that longer credit history corresponds to better grade. So, among all the loan data, what percentage of the borrowers having longer than 15 years of history?
 
@@ -389,7 +389,7 @@ ggplot(data = mydata, aes(revol_util)) +
   labs(title = 'Revolving Utilization distribution by grade') 
 ```
 
-![](LCAnalytics_files/figure-markdown_github/unnamed-chunk-21-1.png)
+![](/home/steve/Documents/Git/LendingClub/README_files/figure-markdown_github/unnamed-chunk-21-1.png)
 
 ``` r
 ggplot(data = mydata, aes(inq_last_12m)) + 
@@ -398,7 +398,7 @@ ggplot(data = mydata, aes(inq_last_12m)) +
   facet_wrap( ~ grade)
 ```
 
-![](LCAnalytics_files/figure-markdown_github/unnamed-chunk-21-2.png)
+![](/home/steve/Documents/Git/LendingClub/README_files/figure-markdown_github/unnamed-chunk-21-2.png)
 
 ``` r
 ggplot(data = mydata, aes(total_bal_ex_mort)) + 
@@ -407,7 +407,7 @@ ggplot(data = mydata, aes(total_bal_ex_mort)) +
   xlim(0,100000)
 ```
 
-![](LCAnalytics_files/figure-markdown_github/unnamed-chunk-21-3.png)
+![](/home/steve/Documents/Git/LendingClub/README_files/figure-markdown_github/unnamed-chunk-21-3.png)
 
 These three plots explains the other three FICO attributes.
 

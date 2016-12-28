@@ -1,6 +1,7 @@
 ---
 title: "Approaching Lending Club Data with R"
 output: github_document
+knit: (function(inputFile, encoding) { rmarkdown::render(inputFile, encoding = encoding, output_file = file.path(dirname(inputFile), 'README.md')) })
 ---
 
 ```{r setup, include=FALSE}
@@ -76,9 +77,10 @@ DTI Ratio
 * _dti_
 
 However I am not able to find FICO score field anymore. Reason 'seems' to be that LC removed this field somewhere along the road before they went public (see reference [here](http://www.lendacademy.com/lending-club-removes-data-fields/)). If I take a guess, FICO has been proven highly correlated to LC's algorithm, as a result of that, to reduce transparency LC decided to cut it out. Instead, LC releases the FICO attributes such as 
-![new attributes](/home/steve/Pictures/NewAttributes.png)
+![new attributes](/home/steve/Documents/Git/LendingClub/pic/NewAttributes.png)
 
-which means, unfortunately for me, I need more work. To mimic the FICO score, we can use this ![FICOreference](/home/steve/Pictures/FICOAttributes.png)
+which means, unfortunately for me, I need more work. To mimic the FICO score, we can use this 
+![FICO reference](/home/steve/Documents/Git/LendingClub/pic/FICOAttributes.png)
 
 as a reference, and include relevant fields into the final data frame.
 
@@ -255,9 +257,3 @@ Since we can't visualize it, can we try the machine learning way?
 ## Machine Learning
 
 to be continued...
-
-
-
-```{r include=F}
-file.rename(from="LCAnalytics.md", to="README.md")
-```
