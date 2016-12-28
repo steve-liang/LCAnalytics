@@ -381,7 +381,7 @@ sum(mydata$earliest_cr_line > 15) / nrow(mydata)
 
     ## [1] 0.5062774
 
-Slightly more than Half. If we only considering the half samples whose credit history is over 15 years, we lose a big chunk of samples, which may still contain good quality borrowers whose credit history are short because they are young. Although longer credit history indicates higher quality but the edge isn't as big as the previous plot shows. I personally don't think the length of credit history is a good determining factor for grading. Let's move on to the other three attributes.
+Slightly more than Half. If we only considering the half samples whose credit history is over 15 years, we lose a big chunk of samples, which may still contain good quality borrowers whose credit history are short because they are young. Although longer credit history indicates higher quality, the edge isn't as big as the previous plot shows. I personally don't think the length of credit history is a good determining factor for grading. Let's move on to the other three attributes.
 
 ``` r
 ggplot(data = mydata, aes(revol_util)) + 
@@ -417,7 +417,7 @@ These three plots explains the other three FICO attributes.
 
 -   total balance excl mortgage. The difference above 25k is indifferentiable again. The less amount owed, the higher grade the loan is. That is reasonable but again this isn't a very strong differentiator.
 
-Overall, none of the FICO attributes provides a useful and strong indication of the loan quality. Although there are a few observation that could be helpful in indentify extremely good quality borrowers. However, for the majority of loans, these 4 attributes ain't very differentiable.
+Overall, none of the FICO attributes provides a useful and strong indication of the loan quality. Although there are a few observations that could be helpful in indentifying extremely good quality borrowers, for the majority of loans, these 4 attributes ain't very differentiable.
 
 Since we can't visualize it, can we try the machine learning way?
 
