@@ -363,34 +363,28 @@ ggplot(data = mydata, aes(earliest_cr_line)) +
 
 ![](LCAnalytics_files/figure-markdown_github/unnamed-chunk-18-1.png)
 
-According to the distribution plots, you can generally tell that when credit length is &lt; 12-15 years, there is not much distinctions between grades. The dispersion came from extremely long credit history. A better plot would be to put all distributions under one pane overlaying each other. That is,
+According to the distribution plots, you can generally tell that regardless of loan grade, most of the borrowers have credit history of approximately 12 years. Shapes of the distribution are similar as well with higher grade's having fatter tails towards longer history. On the opposite side, lower grade displays positive skew. A better plot would be to put all distributions under one pane overlaying each other. That is,
 
 ``` r
 ggplot(data = mydata, aes(earliest_cr_line)) + 
-  geom_density(aes(fill = grade)) + 
+  geom_density(aes(colour = grade)) + 
   xlim(0,40) + 
   labs(title = 'Earliest credit line distribution by grade') 
 ```
 
 ![](LCAnalytics_files/figure-markdown_github/unnamed-chunk-19-1.png)
 
-When credit history is &lt; 12 years, grades are indifferentiable. Until starting from 15 years, you can see that longer credit history corresponds to better grade. So, among all the loan data, what percentage of the borrowers having longer than 15 years of history?
+Unlike what we've seen on funded amount and DTI factors, if you ask me which loan is a better loan solely by looking at the credit history, my answer is I can't tell. Because the margin (difference) between different distributions is so marginal especially between low grades.
 
-``` r
-sum(mydata$earliest_cr_line > 15) / nrow(mydata)
-```
-
-    ## [1] 0.5062774
-
-Slightly more than Half. If we only considering the half samples whose credit history is over 15 years, we lose a big chunk of samples, which may still contain good quality borrowers whose credit history are short because they are young. Although longer credit history indicates higher quality, the edge isn't as big as the previous plot shows. I personally don't think the length of credit history is a good determining factor for grading. Let's move on to the other three attributes.
+Although a tendency that longer credit history indicates higher quality, the edge isn't as big as the previous plot shows. I personally don't think the length of credit history is a strong determining factor for grading. Let's move on to the other three attributes.
 
 ``` r
 ggplot(data = mydata, aes(revol_util)) + 
-  geom_density(aes(fill = grade)) + 
+  geom_density(aes(colour = grade)) + 
   labs(title = 'Revolving Utilization distribution by grade') 
 ```
 
-![](LCAnalytics_files/figure-markdown_github/unnamed-chunk-21-1.png)
+![](LCAnalytics_files/figure-markdown_github/unnamed-chunk-20-1.png)
 
 ``` r
 ggplot(data = mydata, aes(inq_last_12m)) + 
@@ -399,16 +393,16 @@ ggplot(data = mydata, aes(inq_last_12m)) +
   facet_wrap( ~ grade)
 ```
 
-![](LCAnalytics_files/figure-markdown_github/unnamed-chunk-21-2.png)
+![](LCAnalytics_files/figure-markdown_github/unnamed-chunk-20-2.png)
 
 ``` r
 ggplot(data = mydata, aes(total_bal_ex_mort)) + 
-  geom_density(aes(fill = grade)) + 
+  geom_density(aes(colour = grade)) + 
   labs(title = 'total balance excl. mortgage by grade') + 
   xlim(0,100000)
 ```
 
-![](LCAnalytics_files/figure-markdown_github/unnamed-chunk-21-3.png)
+![](LCAnalytics_files/figure-markdown_github/unnamed-chunk-20-3.png)
 
 These three plots explains the other three FICO attributes.
 
@@ -418,11 +412,19 @@ These three plots explains the other three FICO attributes.
 
 -   total balance excl mortgage. The difference above 25k is indifferentiable again. The less amount owed, the higher grade the loan is. That is reasonable but again this isn't a very strong differentiator.
 
-Overall, none of the FICO attributes provides a useful and strong indication of the loan quality. Although there are a few observations that could be helpful in indentifying extremely good quality borrowers, for the majority of loans, these 4 attributes ain't very differentiable.
+Overall, none of the FICO attributes provides a visually strong indication of the loan quality. Although there are a few observations that could be helpful in indentifying extremely good quality borrowers, for the majority of loans, these 4 attributes ain't very differentiable.
 
 Since we can't visualize it, can we try the machine learning way?
 
 Machine Learning
 ----------------
+
+My first question is **which learning method to use?**
+
+My instant thought is *Multiple Linear Regression*, because the 4 factors displays close-to-normality, lack of multicollinearity and of course strongly correlated to loan quality. But drawback is that the factors are in different categories by definition. Therefore having different level of noise (the statistical term *homoscedasticity*) makes MLR model inefficient. Any other choices?
+
+Every time I encounter this question, I come back to this chart given by Microsoft. ![MLCheatSheet](https://docs.microsoft.com/en-us/azure/machine-learning/media/machine-learning-algorithm-cheat-sheet/machine-learning-algorithm-cheat-sheet-small_v_0_6-01.png)
+
+It appears that our problem is essentially a multi-class classification problem. We want to use all 4 FICO attributes to predict loan grades which are labeled from A to G (6 categories).
 
 to be continued...
