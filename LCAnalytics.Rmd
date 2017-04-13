@@ -36,7 +36,7 @@ Lenders must have done a lot of work and have evidence that these are the most c
 Lending Club's public loan data can be downloaded from [here](https://www.lendingclub.com/info/download-data.action). I am using 2016Q3 data which is the most recent.
 
 The R implementation mainly requires the following two pacakges. 
-```{r message=F}
+```{r message=FALSE}
 # for data manipulation
 library(dplyr)
 # for data visualization
@@ -108,7 +108,7 @@ str(mydata)
 
 For numeric analysis purpose, we need to convert some of the chr object to numeric, e.g. interest rate displaying as a charactor '11.5%' need to be converted to 0.115 as a numeric value. _earliest_cr_line_ needs some special treatment. Currently it displays the first date when credit line was opened, but to me, I am more interested in the total length in **years** since it was open. So we need to apply some transformation there.
 
-```{r warning=F}
+```{r warning=FALSE}
 mydata$term <- as.numeric(substr(mydata$term, 1,3))
 mydata$emp_length <- as.numeric(substr(mydata$emp_length, 1,2))
 mydata$int_rate <- as.numeric(gsub("%", "", mydata$int_rate)) / 100
@@ -124,7 +124,7 @@ Data look good for analysis now. let's start with **Annual Income**.
 
 ### What is the range of salary? Do high income borrowers tend to get funded more?
 
-```{r message = F}
+```{r message = FALSE}
 ggplot(mydata, aes(annual_inc, funded_amnt)) + 
   geom_point(aes(colour = grade)) +
   labs(title = 'annual inc vs. funded amnt') +
@@ -152,7 +152,7 @@ Well, most of million dollar salaried people have legitimate titles such as mana
 mydata <- filter(mydata, annual_inc < 500000)
 ```
 Replot the annual income vs. funded amount chart.
-```{r message = F}
+```{r message = FALSE}
 p <- ggplot(mydata, aes(annual_inc, funded_amnt)) +
   geom_point(aes(colour = grade)) +
   labs(title = 'annual inc vs. funded amnt') +
@@ -161,13 +161,13 @@ p
 ```
 
 Much better! We know that LC cap the funding limit to $40k so we see no high funded amount greater than that. Overall we see a pretty linear relationship for annual income < $100k. Beyond that, we see the regression line going flat due to the hard cap of $40k. If we drill in to < $100k annual income borrowers, we will see a clearer linear relationship. 
-```{r warning=F, message=F}
+```{r warning=FALSE, message=FALSE}
 p + xlim(0,100000) + facet_grid(. ~ grade) + geom_smooth()
 ```
 
 The steepness of the regression line confirms that the more money borrowed relative to income, the higher risk (lower grade) the loan is. At this point, there is no doubt that annual income is one major factor to determine the grade of a loan. A better way to look at the slope is to use (installment / monthly income) ratio. 
 
-```{r warning=F}
+```{r warning=FALSE}
 # Add a new column called lc_dti
 mydata <- mutate(mydata, monthly_inc = annual_inc/12, lc_dti = installment/monthly_inc)
 
@@ -180,7 +180,7 @@ The lending club obligation to monthly income displays interesting results. For 
 
 ### Debt-to-Income Ratio (DTI)
 In fact, I have just constructed a Lending Club specific DTI ratio above using LC's monthly payment divided by monthly income, in which we've found it useful in distinguishing grades. The DTI in the dataset is a more generally heard one that excludes mortgage but include all other debts such as credit card, car loan etc. So let's see what those reported DTI is telling. 
-```{r warning=F}
+```{r warning=FALSE}
 d <- ggplot(data = mydata, aes(dti/100)) + xlim(0,1)
 d <- d + geom_density(aes(fill = grade))
 d + facet_grid(grade ~ .)
@@ -190,7 +190,7 @@ dti displays similar feature as lc_dti with high grade loan skew to the right an
 
 ### How about LC_DTI / DTI Ratio? This will answer how much LC Debt borrowers is willing to obligate in addition to existing debt.
 
-```{r warning=F}
+```{r warning=FALSE}
 mydata <- mutate(mydata, lcd_to_tot_debt = lc_dti / (dti/100))
 ggplot(data = mydata, aes(lcd_to_tot_debt)) + xlim(0,1) +
   geom_density(aes(fill = grade)) +
@@ -201,7 +201,7 @@ Even the majority of the worst grade (G) loan would not comprise more than 50% o
 
 ### Let's move on to the FICO attributes
 
-```{r warning=F}
+```{r warning=FALSE}
 ggplot(data = mydata, aes(earliest_cr_line)) + 
   geom_density(aes(fill = grade)) + 
   facet_grid(grade ~.) + 
@@ -211,7 +211,7 @@ ggplot(data = mydata, aes(earliest_cr_line)) +
 
 According to the distribution plots, you can generally tell that regardless of loan grade, most of the borrowers have credit history of approximately 12 years. Shapes of the distribution are similar as well with higher grade's having fatter tails towards longer history. On the opposite side, lower grade displays positive skew. A better plot would be to put all distributions under one pane overlaying each other. That is,
 
-```{r warning=F}
+```{r warning=FALSE}
 ggplot(data = mydata, aes(earliest_cr_line)) + 
   geom_density(aes(colour = grade)) + 
   xlim(0,40) + 
@@ -222,7 +222,7 @@ Unlike what we've seen on funded amount and DTI factors, if you ask me which loa
 
 Although a tendency that longer credit history indicates higher quality, the edge isn't as big as the previous plot shows. I personally don't think the length of credit history is a strong determining factor for grading. Let's move on to the other three attributes.
 
-```{r warning=F}
+```{r warning=FALSE}
 ggplot(data = mydata, aes(revol_util)) + 
   geom_density(aes(colour = grade)) + 
   labs(title = 'Revolving Utilization distribution by grade') 
@@ -252,18 +252,75 @@ Since we can't visualize it, can we try the machine learning way?
 
 ## Machine Learning
 
-My first question is __which learning method to use?__ 
+### Multiclassification using Random Forest
 
-My instant thought is _Multiple Linear Regression_, because the 4 factors displays close-to-normality, lack of multicollinearity and of course strongly correlated to loan quality. But drawback is that the factors are in different categories by definition. Therefore having different level of noise (the statistical term _homoscedasticity_) makes MLR model inefficient. Any other choices?
+Let's define our problem. Previously we've established a strong belief that Annual Income and DTI are two major factors of a high quality loan. But there are still many input variables that we have not investigated into, especially my hypothesis that the FICO attributes may also be a major identifiers of a good loan. 
 
-Every time I encounter this question, I come back to this chart given by Microsoft.
-![MLCheatSheet](https://docs.microsoft.com/en-us/azure/machine-learning/media/machine-learning-algorithm-cheat-sheet/machine-learning-algorithm-cheat-sheet-small_v_0_6-01.png)
+Let's set aside Annual Income and DTI, leaving the rest of the input variables as our focus going forward. Also, installment and funded_amnt are directly related to DTI, so can be excluded as well. I want to know, without the apparent factors, using the rest, can we also find some hidden relationship between them and the predictions which is the grade of the loan. Since "grade" has 7 levels, this will become a multiclassificaion problem.
 
-It appears that our problem is essentially a multi-class classification problem. We want to use all 4 FICO attributes to predict loan grades which are labeled from A to G (6 categories).
+```{r}
+mydata_ex <- select(mydata, grade, term, int_rate, earliest_cr_line, revol_util, inq_last_12m, total_bal_ex_mort, purpose, emp_title, emp_length, addr_state)
 
-to be continued...
+# Convert chr columns to factors
+mydata_ex[sapply(mydata_ex, is.character)] <- lapply(mydata_ex[sapply(mydata_ex, is.character)], as.factor)
 
+str(mydata_ex)
+```
 
+Since int_rate are set according to grade, or vice versa. Due to high correlation by nature, this will dominate the predictor rank which are not helpful for us. I can drop this column. 
+
+emp_title contains 37370 levels, which would be highly independent (random) to the grade, I would not want to overcomplicate my problem, hence this can be dropped. 
+
+```{r}
+mydata_ex <- select(mydata_ex, -int_rate, -emp_title)
+```
+
+Since randomForest doesn't take input containing NAs, I want to know if any of the input variables contain NAs, and how many of them. 
+
+```{r}
+colSums(is.na(mydata_ex))
+```
+
+revol_util contains 59 NAs while emp_length seems to have a bigger problem which contains 13018 NAs. If removing all the observations that contain NAs, I will lose 14% of my samples. This is not too bad because after all we still have a pretty decent size of sample.  
+
+```{r}
+mydata_ex <- na.omit(mydata_ex)
+nrow(mydata_ex)
+```
+
+Now, I can throw in the Random Forest Classifier
+
+```{r, message=FALSE}
+library(randomForest)
+
+# build a Random Forest
+rf <- randomForest(data = mydata_ex, grade~., ntree = 100, mtry = 3, importance = T, keep.forest = T, na.action = na.omit)
+rf
+```
+
+That's a pretty bad classifer isn't it. This is no surprise because we wasn't able to find patterns by visualizing the relationship. There is unlikely any predictive power in those factors. Additionally, and which I found most difficult to handle in many real cases is that the imbalanced of the classes in the dataset You can easily tell that, the majority of the loan grades lies in B, C and D, while the two ends are only a small fraction of the total loans. 
+
+```{r}
+summarise(group_by(mydata_ex, grade), n = n())
+```
+
+This is where I can use my own in output re-engineering, instead of classifying into 7, with highly imbalanced dataset. Can I re-define the problem into a binary 2-class problem. Good loans for those in Grade A and B, while bad loans are the rest from Grade C to G? 
+
+This way of simplification might help my classifier do a better job with a much more balanced output variables.
+
+A simple transformation can be done by:
+
+```{r}
+Good <- c('A','B')
+mydata_ex <- mutate(mydata_ex, label = ifelse(grade %in% Good, 1,0))
+mydata_ex$label <- factor(mydata_ex$label)
+mydata_ex$grade <- NULL
+
+rf2 <- randomForest(data = mydata_ex, label~., ntree = 100, mtry = 3, importance = T, keep.forest = T, na.action = na.omit)
+rf2
+```
+
+after re-label the output variables still doesn't yield a better classifier. As you can see now the classifier is heavily biased to predicting loan as bad loan! This again suggests that none of the features is capable of distinguish bad/good loan. You would think that, employment length, revolcing utilization might intuitively show some potential. But, just as the same as what we did using visualizaion approach, there is no clear evidence. 
 
 
 

@@ -49,3 +49,36 @@ p <- p + labs(title = 'annual inc vs. funded amnt')
 p + geom_smooth()
 
 
+
+mydata_ex <- select(mydata, grade, term, int_rate, earliest_cr_line, revol_util, inq_last_12m, total_bal_ex_mort, purpose, emp_title, emp_length, addr_state)
+
+# Convert chr columns to factors
+mydata_ex[sapply(mydata_ex, is.character)] <- lapply(mydata_ex[sapply(mydata_ex, is.character)], as.factor)
+
+mydata_ex <- select(mydata_ex, -int_rate, -emp_title)
+
+
+colSums(is.na(mydata_ex))
+
+mydata_ex <- na.omit(mydata_ex)
+nrow(mydata_ex)
+
+
+library(randomForest)
+
+# build a Random Forest
+rf <- randomForest(data = mydata_ex, grade~., ntree = 100, mtry = 3, importance = T, keep.forest = T, na.action = na.omit)
+rf
+
+summarise(group_by(mydata_ex, grade), n = n())
+
+Good <- c('A','B')
+mydata_ex <- mutate(mydata_ex, label = ifelse(grade %in% Good, 1,0))
+mydata_ex$label <- factor(mydata_ex$label)
+mydata_ex$grade <- NULL
+
+rf2 <- randomForest(data = mydata_ex, label~., ntree = 100, mtry = 3, importance = T, keep.forest = T, na.action = na.omit)
+rf2
+
+
+
